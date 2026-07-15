@@ -36,19 +36,19 @@ def get_hotels() -> List[dict]:
 
 @tool
 def search_hotel(
-    city: str,
+    location: str,
     checkIn: Optional[str] = None,
     checkOut: Optional[str] = None,
 ) -> List[dict]:
     """
-    Search for hotels by city and optional check-in/check-out dates.
+    Search for hotels by city and Country optional check-in/check-out dates.
 
     Args:
-        city: Hotel city name. Example: Bangkok, Colombo, Singapore.
+        city: Hotel city/Country name. Example: Bangkok, Colombo, Singapore,Thailand,Paris.
         checkIn: Optional check-in date in YYYY-MM-DD format.
         checkOut: Optional check-out date in YYYY-MM-DD format.
     """
-    params = {"city": city}
+    params = {"city": location}
 
     if checkIn:
         params["checkIn"] = checkIn

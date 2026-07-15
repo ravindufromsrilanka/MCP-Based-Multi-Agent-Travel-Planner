@@ -45,6 +45,7 @@ User: "what are the available hotels"
 intent = hotel
 sub_action = list_all
 city = null
+country = null
 check_in = null
 check_out = null
 
@@ -52,6 +53,23 @@ User: "what are the available hotels in YYY"
 intent = hotel
 sub_action = search
 city = YYY
+country = null
+check_in = null
+check_out = null
+
+User: "find me available hotels in XXX"
+intent = hotel
+sub_action = search
+city = null
+country = XXX
+check_in = null
+check_out = null
+
+User: "find me available hotels in YYY,XXX"
+intent = hotel
+sub_action = search
+city = YYY
+country = XXX
 check_in = null
 check_out = null
 

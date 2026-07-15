@@ -1,10 +1,5 @@
 from client import get_tools
 
-
-# ----------------------------------------
-# Helper Function
-# ----------------------------------------
-
 async def find_tool(tool_name):
 
     tools = await get_tools()
@@ -15,11 +10,6 @@ async def find_tool(tool_name):
             return tool
 
     return None
-
-
-# ----------------------------------------
-# HOTEL TOOLS
-# ----------------------------------------
 
 async def get_hotels():
 
@@ -54,11 +44,6 @@ async def book_hotel(
         "check_out_date": check_out_date,
         "rooms": rooms
     })
-
-
-# ----------------------------------------
-# FLIGHT TOOLS
-# ----------------------------------------
 
 async def get_flights():
 

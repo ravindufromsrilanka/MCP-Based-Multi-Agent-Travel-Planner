@@ -7,7 +7,6 @@ from langchain.agents import create_agent
 
 load_dotenv(override=True)
 
-# Using your instructor's exact server definitions pointing to /mcp
 MCP_SERVERS = {
     "hotel-service": {
         "url": "http://localhost:8001/mcp",

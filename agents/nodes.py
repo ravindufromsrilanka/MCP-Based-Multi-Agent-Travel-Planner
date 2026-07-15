@@ -20,9 +20,9 @@ class TravelExtraction(BaseModel):
         description="Action type: search, list_all, book or general."
     )
 
-    city: Optional[str] = Field(
+    location: Optional[str] = Field(
         default=None,
-        description="Hotel city name. Example: Mumbai, Colombo, Bangkok."
+        description="The location targeted for the hotel search. Can be a city name, country name, state, or region. Examples: Mumbai, Thailand, Japan, Bangkok."
     )
 
     check_in: Optional[str] = Field(
@@ -111,7 +111,7 @@ def router(state: GraphState) -> dict:
         data = {
             "intent": "unknown",
             "sub_action": "general",
-            "city": None,
+            "location": None,
             "check_in": None,
             "check_out": None,
             "origin": None,
@@ -130,7 +130,7 @@ def router(state: GraphState) -> dict:
         "intent": data.get("intent", "unknown"),
         "sub_action": data.get("sub_action", "general"),
 
-        "city": data.get("city"),
+        "location": data.get("location"),
         "check_in": data.get("check_in"),
         "check_out": data.get("check_out"),
 
@@ -232,7 +232,7 @@ def _format_flight(flight: dict) -> str:
 
 
 def hotel_node(state: GraphState) -> dict:
-    city = state.get("city")
+    location = state.get("location")
     check_in = state.get("check_in")
     check_out = state.get("check_out")
 
@@ -279,9 +279,9 @@ def hotel_node(state: GraphState) -> dict:
             }
         )
 
-    elif city:
+    elif location:
         params = {
-            "city": city,
+            "city": location,
         }
 
         if check_in:

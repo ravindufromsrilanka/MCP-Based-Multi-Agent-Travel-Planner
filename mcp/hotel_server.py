@@ -61,7 +61,7 @@ def get_hotels() -> str:
 
 @mcp.tool()
 def search_hotels(
-    city: str,
+    city: optional[str] = None,
     country: optional[str] = None,
     check_in: optional[str] = None,
     check_out: optional[str] = None,

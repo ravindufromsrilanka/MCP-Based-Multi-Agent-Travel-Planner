@@ -6,7 +6,7 @@ class GraphState(TypedDict):
     intent: str
     sub_action: str
 
-    city: Optional[str]
+    location: Optional[str]
     check_in: Optional[str]
     check_out: Optional[str]
 
