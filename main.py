@@ -62,6 +62,7 @@ async def chat(request: ChatRequest):
         "intent": "",
         "sub_action": "",
         "city": None,
+        "country":None,
         "check_in": None,
         "check_out": None,
         "origin": None,

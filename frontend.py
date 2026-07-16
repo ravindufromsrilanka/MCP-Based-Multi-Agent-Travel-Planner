@@ -85,7 +85,7 @@ async def call_chat_api_streamed(message):
     
     yield " Analyzing your request, routing to specialized agents...", None, None
 
-    await asyncio.sleep(0.2) # Small delay to let user register the routing step
+    await asyncio.sleep(0.8)
     yield "Contacting database servers...", None, None
     
     payload = {"message": message}
@@ -112,7 +112,7 @@ async def call_chat_api_streamed(message):
     for word in words:
         current_stream += word + " "
         yield current_stream +" | ",None,None
-        await asyncio.sleep(0.02)  # Adjust the speed of the typewriter effect here
+        await asyncio.sleep(0.09)
 
     yield chat_text,flights,hotels
 

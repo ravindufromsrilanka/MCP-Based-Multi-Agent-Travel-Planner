@@ -22,7 +22,7 @@ class TravelExtraction(BaseModel):
 
     location: Optional[str] = Field(
         default=None,
-        description="The location targeted for the hotel search. Can be a city name, country name, state, or region. Examples: Mumbai, Thailand, Japan, Bangkok."
+        description="The location targeted for the hotel search.Extract the location name from the user query.Can be a city name, country name, state, or region. Examples: Mumbai, Thailand, Japan, Bangkok."
     )
 
     check_in: Optional[str] = Field(
@@ -37,12 +37,12 @@ class TravelExtraction(BaseModel):
 
     origin: Optional[str] = Field(
         default=None,
-        description="Flight origin city or airport code. Example: BOM, CMB, Mumbai."
+        description="Flight origin city or airport code. Extract the destination name from the user query .Example: DEL, BKK, Delhi,Thailand,India,Canada."
     )
 
     destination: Optional[str] = Field(
         default=None,
-        description="Flight destination city or airport code. Example: DEL, BKK, Delhi."
+        description="Flight destination city,Country or airport code.Extract the destination name from the user query .Example: DEL, BKK, Delhi,Thailand,India,Canada."
     )
 
     flight_date: Optional[str] = Field(
@@ -263,8 +263,8 @@ def hotel_node(state: GraphState) -> dict:
                 "flight_results": [],
                 "response_text": (
                     "I need more details to book the hotel. "
-                    "Please provide hotel_id, guest_name, guest_email, room_type, "
-                    "check_in, and check_out."
+                    "Please provide hotel id, guest name, guest email, room type, "
+                    "check in, and check out."
                 ),
             }
 
@@ -281,7 +281,7 @@ def hotel_node(state: GraphState) -> dict:
 
     elif location:
         params = {
-            "city": location,
+            "location": location,
         }
 
         if check_in:

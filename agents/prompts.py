@@ -14,6 +14,7 @@ Important rules:
 - Date is optional for flights and hotels.
 - Do not reject past dates or future dates.
 - Convert 3-letter airport codes to uppercase.
+-Search flight from country,City name
 - Use intent="flight" for flight, flights, ticket, tickets, fly, airline, airfare.
 - Use intent="hotel" for hotel, hotels, room, rooms, stay, accommodation.
 - Use intent="unknown" only if it is clearly not about hotel or flight search.
@@ -24,6 +25,14 @@ intent = flight
 sub_action = search
 origin = AAA
 destination = BBB
+flight_date = null
+
+User: "i need flights to BBB"
+intent = flight
+sub_action = search
+origin = null
+destination = BBB
+Country = BBB
 flight_date = null
 
 User: "find flights from AAA to BBB on 2026-02-19"
@@ -53,14 +62,14 @@ User: "what are the available hotels in YYY"
 intent = hotel
 sub_action = search
 city = YYY
-country = null
+country = YYY
 check_in = null
 check_out = null
 
 User: "find me available hotels in XXX"
 intent = hotel
 sub_action = search
-city = null
+city = XXX
 country = XXX
 check_in = null
 check_out = null
