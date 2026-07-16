@@ -115,11 +115,11 @@ def search_flights(
     date: Optional[str] = None,
 ) -> List[dict]:
     """
-    Search for flights by origin, destination, and optional travel date.
+    Search for flights by origin, destination,Country and optional travel date.
 
     Args:
-        origin: Flight origin city or airport code. Example: CMB, Bangkok.
-        destination: Flight destination city or airport code. Example: BKK, Singapore.
+        origin: Flight origin city,Country or airport code. Example: CMB, Bangkok.
+        destination: Flight destination city,Country or airport code. Example: BKK, Singapore.
         date: Optional flight date in YYYY-MM-DD format.
     """
 
