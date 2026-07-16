@@ -123,7 +123,6 @@ demo = gr.ChatInterface(
     fn = gradio_chat_handler,
     title= "TripWeaver AI Travel Planner",
     description="Ask me to search for flights, list hotels, or make bookings seamlessly!",
-    
 )
 
 app = gr.mount_gradio_app(app, demo, path="/")
