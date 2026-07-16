@@ -124,6 +124,7 @@ demo = gr.ChatInterface(
     title= "TripWeaver AI Travel Planner",
     description="Ask me to search for flights, list hotels, or make bookings seamlessly!",
     examples=["Find flights from Tokyo to Seoul", "Show me available hotels", "List all flights"],
+    cache_examples=False
 )
 
 app = gr.mount_gradio_app(app, demo, path="/")
