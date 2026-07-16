@@ -1,4 +1,10 @@
+import os
+import asyncio
 from fastapi import FastAPI
+import gradio as gr
+from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
+
 from fastapi.middleware.cors import CORSMiddleware
 from entity import ChatRequest, ChatResponse
 from agents.tools import get_hotels, get_flights
@@ -25,10 +31,10 @@ app.add_middleware(
 )
 
 
-    
-@app.get("/")
-async def hello():
-    return {"message": "Hello, World!"}
+ #app.get(/) removed caused gradio frontend need to be load as homepage   
+# @app.get("/")
+# async def hello():
+#     return {"message": "Hello, World!"}
 
 
 @app.get("/hotels")
@@ -91,6 +97,7 @@ async def chat(request: ChatRequest):
         return ChatResponse(
             response=response_text,
             hotels=result.get("hotel_results", []) or None,
+         
             flights=result.get("flight_results", []) or None,
         )
 
@@ -102,7 +109,26 @@ async def chat(request: ChatRequest):
         flights=result.get("flight_results", []) or None,
     )
 
+async def gradio_chat_handler(message,history):
+    """
+    This helper function connects front-end text box directly 
+    to existing FastAPI /chat endpoint logic safely.
+    """
+    request_payload = ChatRequest(message=message)
+    chat_response = await chat(request_payload)
 
+    return chat_response.response
+
+demo = gr.ChatInterface(
+    fn = gradio_chat_handler,
+    title= "TripWeaver AI Travel Planner",
+    description="Ask me to search for flights, list hotels, or make bookings seamlessly!",
+    examples=["Find flights from Tokyo to Seoul", "Show me available hotels", "List all flights"],
+)
+
+app = gr.mount_gradio_app(app, demo, path="/")
+handler = Mangum(app)
+    
 if __name__ == "__main__":
     import uvicorn
 
