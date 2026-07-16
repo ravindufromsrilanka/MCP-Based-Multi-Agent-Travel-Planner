@@ -122,9 +122,7 @@ async def gradio_chat_handler(message,history):
 demo = gr.ChatInterface(
     fn = gradio_chat_handler,
     title= "TripWeaver AI Travel Planner",
-    description="Ask me to search for flights, list hotels,git or make bookings seamlessly!",
-    examples=["Find flights from Tokyo to Seoul", "Show me available hotels", "List all flights"],
-    cache_examples=False
+    description="Ask me to search for flights, list hotels, or make bookings seamlessly!",
 )
 
 app = gr.mount_gradio_app(app, demo, path="/")
