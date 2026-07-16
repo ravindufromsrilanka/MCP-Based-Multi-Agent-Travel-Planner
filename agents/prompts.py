@@ -25,6 +25,8 @@ intent = flight
 sub_action = search
 origin = AAA
 destination = BBB
+country = null
+city = null
 flight_date = null
 
 User: "i need flights to BBB"
@@ -32,7 +34,8 @@ intent = flight
 sub_action = search
 origin = null
 destination = BBB
-Country = BBB
+country = null
+city = null
 flight_date = null
 
 User: "find flights from AAA to BBB on 2026-02-19"
@@ -40,6 +43,8 @@ intent = flight
 sub_action = search
 origin = AAA
 destination = BBB
+country = null
+city = null
 flight_date = 2026-02-19
 
 User: "show me all flights"
@@ -47,6 +52,8 @@ intent = flight
 sub_action = list_all
 origin = null
 destination = null
+country = null
+city = null
 flight_date = null
 
 Hotel examples:

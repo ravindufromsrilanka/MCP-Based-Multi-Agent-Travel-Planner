@@ -339,6 +339,7 @@ def flight_node(state: GraphState) -> dict:
     destination = state.get("destination")
     flight_date = state.get("flight_date")
 
+    #booking
     if state.get("sub_action") == "book":
         flight_id = state.get("flight_id")
         passenger_name = state.get("passenger_name")
@@ -410,13 +411,66 @@ def flight_node(state: GraphState) -> dict:
             "flight_results": [],
             "response_text": "Flight booking completed.",
         }
-
-    if isinstance(result, dict):
-        flight_results = result.get("flights", [])
-    elif isinstance(result, list):
-        flight_results = result
+    
+    if isinstance(get_flights, (dict, list)):
+        all_data = get_flights
+    elif hasattr(get_flights, "invoke"):
+        all_data = get_flights.invoke({})
+    elif callable(get_flights):
+        all_data = get_flights()
     else:
-        flight_results = []
+        all_data = []
+
+    if isinstance(all_data,dict):
+        all_flights = all_data.get("flights",[])
+    elif isinstance (all_data,list):
+        all_flights = all_data
+    else:
+        all_flights = []
+
+    flight_results = []
+    
+    #data filtering
+    if origin or destination:
+        for flight in all_flights:
+            match = True;
+            
+            #Match with destination
+            if destination:
+                dest_lower = destination.lower().strip()
+                desti_info = flight.get("destination",{})
+                if isinstance(desti_info, dict):
+                    if (dest_lower != desti_info.get("city", "").lower().strip() and
+                        dest_lower != desti_info.get("country", "").lower().strip() and
+                        dest_lower != desti_info.get("airport", "").lower().strip()):
+                        match = False
+                else:
+                    if dest_lower != str(desti_info).lower().strip():
+                        match = False
+            
+            #Match with origin       
+            if origin:
+                origin_lower = origin.lower().strip()
+                origin_info = flight.get("origin",{})
+                if isinstance(origin_info, dict):
+                    if(origin_lower != origin_info.get("city","").lower().strip() and
+                       origin_lower != origin_info.get("country","").lower().strip() and
+                       origin_lower != origin_info.get("airport","").lower().strip()):
+                        match = False;
+                else:
+                    if origin_lower != str(origin_info).lower().strip():
+                        match = False
+            
+            if match:
+                flight_results.append(flight)
+
+    
+    # if isinstance(result, dict):
+    #     flight_results = result.get("flights", [])
+    # elif isinstance(result, list):
+    #     flight_results = result
+    # else:
+    #     flight_results = []
 
     if not flight_results:
         return {
