@@ -1,12 +1,26 @@
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
+# MCP_SERVERS = {
+#     "hotel-service": {
+#         "url": "http://localhost:8001/mcp",
+#         "transport": "streamable_http",
+#     },
+#     "flight-service": {
+#         "url": "http://localhost:8002/mcp",
+#         "transport": "streamable_http",
+#     },
+# }
+
+HOTEL_SERVICE_URL = os.environ.get("HOTEL_SERVER_URL", "http://localhost:8001").rstrip("/") + "/mcp"
+FLIGHT_SERVICE_URL = os.environ.get("FLIGHT_SERVER_URL", "http://localhost:8002").rstrip("/") + "/mcp"
+
 MCP_SERVERS = {
     "hotel-service": {
-        "url": "http://localhost:8001/mcp",
+        "url": "HOTEL_SERVICE_URL",
         "transport": "streamable_http",
     },
     "flight-service": {
-        "url": "http://localhost:8002/mcp",
+        "url": "FLIGHT_SERVICE_URL",
         "transport": "streamable_http",
     },
 }
