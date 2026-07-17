@@ -384,15 +384,15 @@ def flight_node(state: GraphState) -> dict:
 
         result = search_flights.invoke(params)
 
-    elif origin or destination:
-        return {
-            "hotel_results": [],
-            "flight_results": [],
-            "response_text": (
-                "I need both departure and destination information. "
-                "For example: 'flight from BOM to DEL'."
-            ),
-        }
+    # elif origin or destination:
+    #     return {
+    #         "hotel_results": [],
+    #         "flight_results": [],
+    #         "response_text": (
+    #             "I need both departure and destination information. "
+    #             "For example: 'flight from BOM to DEL'."
+    #         ),
+    #     }
 
     else:
         result = get_flights.invoke({})
@@ -412,12 +412,8 @@ def flight_node(state: GraphState) -> dict:
             "response_text": "Flight booking completed.",
         }
     
-    if isinstance(get_flights, (dict, list)):
-        all_data = get_flights
-    elif hasattr(get_flights, "invoke"):
-        all_data = get_flights.invoke({})
-    elif callable(get_flights):
-        all_data = get_flights()
+    if isinstance(result, (dict, list)):
+        all_data = result
     else:
         all_data = []
 
@@ -463,7 +459,8 @@ def flight_node(state: GraphState) -> dict:
             
             if match:
                 flight_results.append(flight)
-
+    else:
+        flight_results = all_flights
     
     # if isinstance(result, dict):
     #     flight_results = result.get("flights", [])
