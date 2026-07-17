@@ -39,8 +39,12 @@ def format_flights(flights):
         flight_number = flight.get("flightNumber", "Unknown Flight Number")
        
         origin = flight.get("origin", {}).get("airport", "Unknown Origin")
+        origin_city = flight.get("origin",{}).get("city","unknown Origin")
+        origin_country = flight.get("origin",{}).get("country","unknown Origin")
         
         destination = flight.get("destination", {}).get("airport", "Unknown Destination")
+        destination_city = flight.get("destination", {}).get("city", "Unknown Destination")
+        destination_country = flight.get("destination", {}).get("country", "Unknown Destination")
        
         flight_date = flight.get("flightDate", "Unknown Date")
        
@@ -53,7 +57,7 @@ def format_flights(flights):
         available_seats = flight.get("availableSeats", "Unknown Available Seats")
         
         lines.append(
-            f"{id}: {airline} {flight_number} from {origin} to {destination} "
+            f"{id}: {airline} {flight_number} from {origin},{origin_city},{origin_country} to {destination},{destination_city},{destination_country} -  "
             f"on {flight_date} {departure_time} - {arrival_time} "
             f"- {currency} {price} - {available_seats} seats"
         )
