@@ -263,17 +263,16 @@ def hotel_node(state: GraphState) -> dict:
         check_in = state.get("check_in")
         check_out = state.get("check_out")
 
-        if state.get("sub_action") == "book":
-            hotel_id = state.get("hotel_id")
-            guest_name = state.get("guest_name")
-            guest_email = state.get("guest_email")
-            room_type = state.get("room_type")
-            check_in_date = state.get("check_in")
-            check_out_date = state.get("check_out")
+        hotel_id = state.get("hotel_id")
+        guest_name = state.get("guest_name")
+        guest_email = state.get("guest_email")
+        room_type = state.get("room_type")
+        check_in_date = state.get("check_in")
+        check_out_date = state.get("check_out")
 
-            if state.get("sub_action") == "confirm":
-                result = book_hotel.invoke(
-                    {
+        if state.get("sub_action") == "confirm":
+            result = book_hotel.invoke(
+                {
                     "hotel_id": hotel_id,
                     "guest_name": guest_name,
                     "guest_email": guest_email,
@@ -281,10 +280,9 @@ def hotel_node(state: GraphState) -> dict:
                     "check_out_date": check_out_date,
                     "room_type": room_type,
                 }
-                )
-                
-                confirmation_msg = "Hotel booking successfully completed!"
-                
+            )
+            
+            confirmation_msg = "Hotel booking successfully completed!"
             if isinstance(result, dict):
                 confirmation_msg = result.get("message") or result.get("status") or confirmation_msg
 
@@ -292,7 +290,7 @@ def hotel_node(state: GraphState) -> dict:
                 "hotel_results": [],
                 "flight_results": [],
                 "response_text": (
-                    f"🎉 **{confirmation_msg}**\n"
+                    f"🎉 **{confirmation_msg}**\n\n"
                     f"🏨 **Confirmed Booking Details:**\n"
                     f"  • Hotel ID: `{hotel_id}`\n"
                     f"  • Guest Name: {guest_name}\n"
@@ -339,15 +337,11 @@ def hotel_node(state: GraphState) -> dict:
                     f"Is all the data correct? Please reply **Yes** to confirm booking, or specify what needs to be changed."
                 ),
             }
-
+            
         elif location:
-            params = {
-                "location": location,
-            }
-
+            params = {"location": location}
             if check_in:
                 params["checkIn"] = check_in
-
             if check_out:
                 params["checkOut"] = check_out
 
@@ -355,7 +349,6 @@ def hotel_node(state: GraphState) -> dict:
 
         else:
             result = get_hotels.invoke({})
-
 
         if isinstance(result, dict):
             hotel_results = result.get("hotels", [])
@@ -379,8 +372,9 @@ def hotel_node(state: GraphState) -> dict:
             "flight_results": [],
             "response_text": "",
         }
+
     except Exception as e:
-         return {
+        return {
             "hotel_results": [],
             "flight_results": [],
             "response_text": f"I couldn't understand your request clearly. Error: {str(e)}",
