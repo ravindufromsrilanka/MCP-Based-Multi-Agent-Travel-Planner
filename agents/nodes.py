@@ -190,9 +190,12 @@ def _format_hotel(hotel: dict) -> str:
     )
 
     return (
-        f"{name} in {location_str}, "
-        f"{stars} stars - {currency} {price}/night - "
-        f"{available} rooms"
+        f"🏨 **{name}** \n"
+        f"📍 {location_str}\n "
+        f"⭐{stars} stars \n"
+        f"💰{currency} {price}/night - "
+        f"🛏️{available} rooms \n"
+        f"\n"
     )
 
 
@@ -255,106 +258,133 @@ def _format_flight(flight: dict) -> str:
 
 
 def hotel_node(state: GraphState) -> dict:
-    location = state.get("location")
-    check_in = state.get("check_in")
-    check_out = state.get("check_out")
+    try:
+        location = state.get("location")
+        check_in = state.get("check_in")
+        check_out = state.get("check_out")
 
-    if state.get("sub_action") == "book":
-        hotel_id = state.get("hotel_id")
-        guest_name = state.get("guest_name")
-        guest_email = state.get("guest_email")
-        room_type = state.get("room_type")
-        check_in_date = state.get("check_in")
-        check_out_date = state.get("check_out")
+        if state.get("sub_action") == "book":
+            hotel_id = state.get("hotel_id")
+            guest_name = state.get("guest_name")
+            guest_email = state.get("guest_email")
+            room_type = state.get("room_type")
+            check_in_date = state.get("check_in")
+            check_out_date = state.get("check_out")
 
-        missing = [
-            field
-            for field, value in [
-                ("hotel_id", hotel_id),
-                ("guest_name", guest_name),
-                ("guest_email", guest_email),
-                ("check_in", check_in_date),
-                ("check_out", check_out_date),
-                ("room_type", room_type),
-            ]
-            if not value
-        ]
+            if state.get("sub_action") == "confirm":
+                result = book_hotel.invoke(
+                    {
+                    "hotel_id": hotel_id,
+                    "guest_name": guest_name,
+                    "guest_email": guest_email,
+                    "check_in_date": check_in_date,
+                    "check_out_date": check_out_date,
+                    "room_type": room_type,
+                }
+                )
+                
+                confirmation_msg = "Hotel booking successfully completed!"
+                
+            if isinstance(result, dict):
+                confirmation_msg = result.get("message") or result.get("status") or confirmation_msg
 
-        if missing:
             return {
                 "hotel_results": [],
                 "flight_results": [],
                 "response_text": (
-                    "I need more details to book the hotel. "
-                    "Please provide hotel id, guest name, guest email, room type, "
-                    "check in, and check out."
+                    f"🎉 **{confirmation_msg}**\n"
+                    f"🏨 **Confirmed Booking Details:**\n"
+                    f"  • Hotel ID: `{hotel_id}`\n"
+                    f"  • Guest Name: {guest_name}\n"
+                    f"  • Email: {guest_email}\n"
+                    f"  • Room Type: {room_type}\n"
+                    f"  • Stay Duration: {check_in_date} to {check_out_date}\n\n"
+                    f"Have a wonderful and comfortable stay!"
                 ),
             }
 
-        result = book_hotel.invoke(
-            {
-                "hotel_id": hotel_id,
-                "guest_name": guest_name,
-                "guest_email": guest_email,
-                "check_in_date": check_in_date,
-                "check_out_date": check_out_date,
-                "room_type": room_type,
-            }
-        )
+        elif state.get("sub_action") == "book":
+            missing = [
+                field
+                for field, value in [
+                    ("hotel_id", hotel_id),
+                    ("guest_name", guest_name),
+                    ("guest_email", guest_email),
+                    ("room_type", room_type),
+                    ("check_in", check_in_date),
+                    ("check_out", check_out_date),
+                ]
+                if not value
+            ]
 
-    elif location:
-        params = {
-            "location": location,
-        }
+            if missing:
+                readable_missing = ", ".join([m.replace("_", " ") for m in missing])
+                return {
+                    "hotel_results": [],
+                    "flight_results": [],
+                    "response_text": f"I need more details to prepare your booking. Please provide: **{readable_missing}**.",
+                }
 
-        if check_in:
-            params["checkIn"] = check_in
-
-        if check_out:
-            params["checkOut"] = check_out
-
-        result = search_hotel.invoke(params)
-
-    else:
-        result = get_hotels.invoke({})
-
-    if state.get("sub_action") == "book":
-        if isinstance(result, dict):
-            confirmation = result.get("message") or result.get("status") or "Hotel booking completed."
             return {
                 "hotel_results": [],
                 "flight_results": [],
-                "response_text": confirmation,
+                "response_text": (
+                    f"📋 **Please verify your hotel booking summary:**\n\n"
+                    f"🏨 **Hotel ID:** `{hotel_id}`\n"
+                    f"👤 **Guest Name:** {guest_name}\n"
+                    f"📧 **Guest Email:** {guest_email}\n"
+                    f"🛏️ **Room Type:** {room_type}\n"
+                    f"📅 **Check-in:** {check_in_date}\n"
+                    f"📅 **Check-out:** {check_out_date}\n\n"
+                    f"Is all the data correct? Please reply **Yes** to confirm booking, or specify what needs to be changed."
+                ),
+            }
+
+        elif location:
+            params = {
+                "location": location,
+            }
+
+            if check_in:
+                params["checkIn"] = check_in
+
+            if check_out:
+                params["checkOut"] = check_out
+
+            result = search_hotel.invoke(params)
+
+        else:
+            result = get_hotels.invoke({})
+
+
+        if isinstance(result, dict):
+            hotel_results = result.get("hotels", [])
+        elif isinstance(result, list):
+            hotel_results = result
+        else:
+            hotel_results = []
+
+        if not hotel_results:
+            return {
+                "hotel_results": [],
+                "flight_results": [],
+                "response_text": (
+                    "I couldn't find any hotels. "
+                    "Try searching by city, for example: 'available hotels in Mumbai'."
+                ),
             }
 
         return {
+            "hotel_results": hotel_results,
+            "flight_results": [],
+            "response_text": "",
+        }
+    except Exception as e:
+         return {
             "hotel_results": [],
             "flight_results": [],
-            "response_text": "Hotel booking completed.",
+            "response_text": f"I couldn't understand your request clearly. Error: {str(e)}",
         }
-
-    if isinstance(result, dict):
-        hotel_results = result.get("hotels", [])
-    elif isinstance(result, list):
-        hotel_results = result
-    else:
-        hotel_results = []
-
-    if not hotel_results:
-        return {
-            "hotel_results": [],
-            "flight_results": [],
-            "response_text": (
-                "I couldn't find any hotels. "
-                "Try searching by city, for example: 'available hotels in Mumbai'."
-            ),
-        }
-
-    return {
-        "hotel_results": hotel_results,
-        "flight_results": [],
-        "response_text": "",
-    }
 
 
 def flight_node(state: GraphState) -> dict:
@@ -616,7 +646,8 @@ def generate_response(state: GraphState) -> dict:
 
     if hotel_results:
         count = len(hotel_results)
-        lines = [_format_hotel(hotel) for hotel in hotel_results[:5]]
+        # lines = [_format_hotel(hotel) for hotel in hotel_results[:5]]
+        lines = [_format_hotel(hotel) for hotel in hotel_results]
 
         return {
             "response_text": (
@@ -627,7 +658,8 @@ def generate_response(state: GraphState) -> dict:
 
     if flight_results:
         count = len(flight_results)
-        lines = [_format_flight(flight) for flight in flight_results[:5]]
+        # lines = [_format_flight(flight) for flight in flight_results[:5]]
+        lines = [_format_flight(flight) for flight in flight_results]
 
         return {
             "response_text": (
