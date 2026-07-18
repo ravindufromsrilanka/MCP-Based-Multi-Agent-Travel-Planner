@@ -22,6 +22,7 @@ class GraphState(TypedDict):
     flight_id: Optional[str]
     passenger_name: Optional[str]
     passenger_email: Optional[str]
+    seat_count: Optional[int]
 
     hotel_results: List[dict]
     flight_results: List[dict]
