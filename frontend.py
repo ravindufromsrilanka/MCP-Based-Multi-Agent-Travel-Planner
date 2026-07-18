@@ -76,16 +76,26 @@ def format_hotels(hotels):
         name = hotel.get("name") or "Unknown Hotel"
         #expectation : making the answers more humanized
         city_data = hotel.get("city") or hotel.get("location", {})
+        bed_count = hotel.get("availableRooms") or "Unknown Rooms Count"
+        star_count = hotel.get("starRating") or "Unknown Rooms Count"
         if isinstance(city_data, dict):
             city = city_data.get("name") or city_data.get("city") or "Unknown City"
             country = city_data.get("country") or "Unknown Country"
             location_str = f"{city}, {country}"
         else:
             location_str = city_data
-tel.get("location", {}).get("city", "")
-  currency = hotel.get("price") or hotel.get("currency", "")
+            currency = hotel.get("currency") or hotel.get("currency", "")
+            price_per_night = hotel.get("pricePerNight") or "N/A"
        
-        lines.append(f"{id}: {name} in {city} - {price_per_night}{currency} per night")
+        lines.append(
+           f"🏨**{name}**\n"
+           f"📍 {location_str}\n"
+           f"💰 {currency}{price_per_night}/Night\n"
+           f"🛏️ {bed_count}"
+           f"⭐{star_count}"
+           )
+       
+        # lines.append(f"{id}: {name} in {city} - {price_per_night}{currency} per night")
     return "\n".join(lines)
 
 
@@ -144,7 +154,6 @@ async def respond(message, history):
             formatted_response += format_flights(flights)
         if hotels:
             formatted_response += format_hotels(hotels)
-
         if len(history) > 0 and history[-1]["role"] == "assistant":
             history[-1]["content"] = formatted_response
         else:
