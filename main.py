@@ -114,7 +114,7 @@ async def gradio_chat_handler(message,history):
     This helper function connects front-end text box directly 
     to existing FastAPI /chat endpoint logic safely.
     """
-    request_payload = ChatRequest(message=message)
+    request_payload = ChatRequest(message=message or "No message provided")
     chat_response = await chat(request_payload)
 
     return chat_response.response
