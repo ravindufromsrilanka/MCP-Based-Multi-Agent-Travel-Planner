@@ -15,9 +15,9 @@ class TravelExtraction(BaseModel):
         description="Main user intent: hotel, flight, or unknown."
     )
 
-    sub_action: Literal["search", "list_all","book", "general"] = Field(
+    sub_action: Literal["search", "list_all","book", "confirm" ,"general"] = Field(
         default="general",
-        description="Action type: search, list_all, book or general."
+        description="Action type: search, list_all, book ,confirm(Yes/No) or general."
     )
 
     location: Optional[str] = Field(
@@ -47,43 +47,54 @@ class TravelExtraction(BaseModel):
 
     flight_date: Optional[str] = Field(
         default=None,
-        description="Flight date in YYYY-MM-DD format. Null if not provided."
+        description="Flight date in YYYY-MM-DD format.Retain from history context if already provided. Null if not provided."
     )
 
     hotel_id: Optional[str] = Field(
         default=None,
-        description="ID of the hotel to book. Null if not provided."
+        description="ID of the hotel to book.Retain from history context if already provided. Null if not provided."
     )
 
     guest_name: Optional[str] = Field(
         default=None,
-        description="Guest full name for hotel booking. Null if not provided."
+        description="Guest full name for hotel booking.Retain from history context if already provided. Null if not provided."
     )
 
     guest_email: Optional[str] = Field(
         default=None,
-        description="Guest email for hotel booking. Null if not provided."
+        description="Guest email for hotel booking.Retain from history context if already provided. Null if not provided."
     )
 
     room_type: Optional[str] = Field(
         default=None,
-        description="Hotel room type such as single, double, or suite. Null if not provided."
+        description="Hotel room type such as single, double, or suite.Retain from history context if already provided. Null if not provided."
     )
 
     flight_id: Optional[str] = Field(
         default=None,
-        description="ID of the flight to book. Null if not provided."
+        description=(
+            "The unique database alphanumeric string ID of the flight to book (e.g., 'k9750cd...'). "
+            "Do NOT use the flight number (like CA7613 or AI7790). Look for the ID value inside the parentheses "
+            "matching the user's requested flight selection. Retain from context history if already provided."
+        )
     )
 
     passenger_name: Optional[str] = Field(
         default=None,
-        description="Passenger full name for flight booking. Null if not provided."
+        description="Passenger full name for flight booking.Retain from history context if already provided. Null if not provided."
     )
 
     passenger_email: Optional[str] = Field(
         default=None,
-        description="Passenger email for flight booking. Null if not provided."
+        description="Passenger email for flight booking.Retain from history context if already provided. Null if not provided."
     )
+    
+    seat_count:Optional[int] = Field(
+        default=None,
+        description = "The total number of seats to book for the flight. Extract as an integer digit (e.g., 2). "
+            "Look closely for explicit numbers, words like 'two seats', or a standalone trailing number "
+            "provided in a comma-separated list of details. Always retain from history context if already captured."
+        )
 
 
 travel_extractor = llm.with_structured_output(TravelExtraction)
@@ -107,6 +118,8 @@ def router(state: GraphState) -> dict:
 
         data = extracted.dict()
 
+        print(f"AI extraction :{data} ---")
+
     except Exception:
         data = {
             "intent": "unknown",
@@ -124,6 +137,7 @@ def router(state: GraphState) -> dict:
             "flight_id": None,
             "passenger_name": None,
             "passenger_email": None,
+            "seat_count" : None
         }
 
     return {
@@ -146,6 +160,7 @@ def router(state: GraphState) -> dict:
         "flight_id": data.get("flight_id"),
         "passenger_name": data.get("passenger_name"),
         "passenger_email": data.get("passenger_email"),
+        "seat_count": data.get("seat_count"),
 
         "hotel_results": [],
         "flight_results": [],
@@ -160,8 +175,10 @@ def _format_hotel(hotel: dict) -> str:
     city_data = hotel.get("city", "unknown city")
     if isinstance(city_data, dict):
         city = city_data.get("name", "unknown city")
+        country = city_data.get("country", "")
+        location_str = f"{city}, {country}" if country else city
     else:
-        city = city_data
+        location_str = city_data
 
     stars = hotel.get("stars", hotel.get("rating", "N/A"))
     price = hotel.get("price", hotel.get("pricePerNight", "N/A"))
@@ -173,7 +190,7 @@ def _format_hotel(hotel: dict) -> str:
     )
 
     return (
-        f"{name} in {city}, "
+        f"{name} in {location_str}, "
         f"{stars} stars - {currency} {price}/night - "
         f"{available} rooms"
     )
@@ -192,13 +209,19 @@ def _format_flight(flight: dict) -> str:
 
     if isinstance(origin_data, dict):
         origin = origin_data.get("airport", origin_data.get("city", "unknown"))
+        origin_city = origin_data.get("city", origin_data.get("city", "unknown"))
+        origin_country = origin_data.get("country", origin_data.get("country", "unknown"))
+        origin_str = f"{origin_city} , {origin_country}"
     else:
-        origin = origin_data
+        origin_str = origin_data
 
     if isinstance(destination_data, dict):
         destination = destination_data.get("airport", destination_data.get("city", "unknown"))
+        destination_city = destination_data.get("city", destination_data.get("city", "unknown"))
+        destination_country = destination_data.get("country", destination_data.get("country", "unknown"))
+        destination_str = f"{destination_city} , {destination_country}"
     else:
-        destination = destination_data
+        destination_str = destination_data
 
     flight_date = flight.get(
         "flightDate",
@@ -222,11 +245,11 @@ def _format_flight(flight: dict) -> str:
         "availableSeats",
         flight.get("available_seats", flight.get("seats", "N/A"))
     )
-
-    return (
-        f"{airline} {number} from {origin} to {destination} "
-        f"on {flight_date}, {departure_time} - {arrival_time} "
-        f"- {currency} {price} - {seats} seats"
+    return(
+        f"✈️ **{airline} {number}**\n"
+    f"  📍 From: {origin_str} ➡️ To: {destination_str}\n"
+    f"  📅 {flight_date} | 🕒 {departure_time} - {arrival_time}\n"
+    f"  💰 {currency} {price} | 💺 {seats} seats left\n"
     )
 
 
@@ -339,6 +362,71 @@ def flight_node(state: GraphState) -> dict:
     destination = state.get("destination")
     flight_date = state.get("flight_date")
 
+    flight_id = state.get("flight_id")
+    passenger_name = state.get("passenger_name")
+    passenger_email = state.get("passenger_email")
+    seat_count = state.get("seat_count")
+    sub_action = state.get("sub_action", "general")
+
+    if state.get("sub_action") == "confirm":
+        result = book_flight.invoke(
+            {
+                "flight_id": flight_id,
+                "passenger_name": passenger_name,
+                "passenger_email": passenger_email,
+                "seat_count": seat_count
+            }
+        )
+        
+        confirmation_msg = "Flight booking successfully completed!"
+        if isinstance(result, dict):
+            confirmation_msg = result.get("message") or result.get("status") or confirmation_msg
+
+        return {
+            "hotel_results": [],
+            "flight_results": [],
+            "response_text": (
+                f"🎉 **{confirmation_msg}**\n\n"
+                f"🎟️ **Confirmed Booking Details:**\n"
+                f"  • Flight ID: `{flight_id}`\n"
+                f"  • Passenger: {passenger_name}\n"
+                f"  • Email: {passenger_email}\n"
+                f"  • Seats Secured: {seat_count}\n\n"
+                f"Have a safe and wonderful flight!"
+            ),
+        }
+        
+    elif state.get("sub_action") == "book":
+        missing = [
+            field for field, value in [
+                ("flight_id", flight_id),
+                ("passenger_name", passenger_name),
+                ("passenger_email", passenger_email),
+                ("seat_count", seat_count), # Validates seat count presence
+            ] if not value
+        ]
+
+        if missing:
+            readable_missing = ", ".join([m.replace("_", " ") for m in missing])
+            return {
+                "hotel_results": [],
+                "flight_results": [],
+                "response_text": f"I need more details to prepare your booking. Please provide: **{readable_missing}**.",
+            }
+
+        return {
+            "hotel_results": [],
+            "flight_results": [],
+            "response_text": (
+                f"📋 **Please verify your flight booking summary:**\n\n"
+                f"✈️ **Flight ID:** `{flight_id}`\n"
+                f"👤 **Passenger Name:** {passenger_name}\n"
+                f"📧 **Passenger Email:** {passenger_email}\n"
+                f"💺 **Number of Seats:** {seat_count}\n\n"
+                f"Is all the data correct? Please reply **Yes** to confirm booking, or specify what needs to be changed."
+            ),
+        }
+    
     #booking
     if state.get("sub_action") == "book":
         flight_id = state.get("flight_id")

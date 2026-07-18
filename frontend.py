@@ -39,8 +39,12 @@ def format_flights(flights):
         flight_number = flight.get("flightNumber", "Unknown Flight Number")
        
         origin = flight.get("origin", {}).get("airport", "Unknown Origin")
+        origin_city = flight.get("origin",{}).get("city","unknown Origin")
+        origin_country = flight.get("origin",{}).get("country","unknown Origin")
         
         destination = flight.get("destination", {}).get("airport", "Unknown Destination")
+        destination_city = flight.get("destination", {}).get("city", "Unknown Destination")
+        destination_country = flight.get("destination", {}).get("country", "Unknown Destination")
        
         flight_date = flight.get("flightDate", "Unknown Date")
        
@@ -53,9 +57,10 @@ def format_flights(flights):
         available_seats = flight.get("availableSeats", "Unknown Available Seats")
         
         lines.append(
-            f"{id}: {airline} {flight_number} from {origin} to {destination} "
-            f"on {flight_date} {departure_time} - {arrival_time} "
-            f"- {currency} {price} - {available_seats} seats"
+            f"✈️ **{airline} {flight_number}** (ID: `{id}`)\n"
+            f"  📍 From: {origin_city}, {origin_country} ➡️ To: {destination_city}, {destination_country}\n"
+            f"  📅 {flight_date} | 🕒 {departure_time} - {arrival_time}\n"
+            f"  💰 {currency} {price} | 💺 {available_seats} seats left\n"
         )
     return "\n".join(lines)
 
@@ -69,9 +74,16 @@ def format_hotels(hotels):
     for hotel in hotels:
         id = hotel.get("_id", "Unknown ID")
         name = hotel.get("name") or "Unknown Hotel"
-        city = hotel.get("city") or hotel.get("location", {}).get("city", "")
-        price_per_night = hotel.get("pricePerNight") or "Price not available"
-        currency = hotel.get("price") or hotel.get("currency", "")
+        #expectation : making the answers more humanized
+        city_data = hotel.get("city") or hotel.get("location", {})
+        if isinstance(city_data, dict):
+            city = city_data.get("name") or city_data.get("city") or "Unknown City"
+            country = city_data.get("country") or "Unknown Country"
+            location_str = f"{city}, {country}"
+        else:
+            location_str = city_data
+tel.get("location", {}).get("city", "")
+  currency = hotel.get("price") or hotel.get("currency", "")
        
         lines.append(f"{id}: {name} in {city} - {price_per_night}{currency} per night")
     return "\n".join(lines)
