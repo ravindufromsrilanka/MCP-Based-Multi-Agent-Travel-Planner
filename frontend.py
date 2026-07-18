@@ -90,9 +90,10 @@ def format_hotels(hotels):
         lines.append(
            f"🏨**{name}**\n"
            f"📍 {location_str}\n"
-           f"💰 {currency}{price_per_night}/Night\n"
+           f"⭐{star_count}\n"
+           f"💰 {currency}{price_per_night}/Night - "
            f"🛏️ {bed_count}"
-           f"⭐{star_count}"
+           
            )
        
         # lines.append(f"{id}: {name} in {city} - {price_per_night}{currency} per night")
