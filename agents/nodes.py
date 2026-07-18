@@ -327,7 +327,7 @@ def hotel_node(state: GraphState) -> dict:
                 "hotel_results": [],
                 "flight_results": [],
                 "response_text": (
-                    f"📋 **Please verify your hotel booking summary:**\n\n"
+                    f"📋 **Please verify  your hotel booking summary:**\n\n"
                     f"🏨 **Hotel ID:** `{hotel_id}`\n"
                     f"👤 **Guest Name:** {guest_name}\n"
                     f"📧 **Guest Email:** {guest_email}\n"
