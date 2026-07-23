@@ -106,10 +106,10 @@ async def call_chat_api_streamed(message):
     followed by typewriter-effect streaming of the response.
     """
     
-    yield " Analyzing your request, routing to specialized agents...", None, None
+    yield " Rounting to the Agents...", None, None
 
-    await asyncio.sleep(0.8)
-    yield "Contacting database servers...", None, None
+    await asyncio.sleep(2)
+    yield "Connecting with the Agent...", None, None
     
     payload = {"message": message}
     
